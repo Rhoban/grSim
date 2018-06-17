@@ -46,11 +46,84 @@ ConfigWidget::ConfigWidget()
 {      
   tmodel=new VarTreeModel();
   this->setModel(tmodel);  
+  geo_vars = VarListPtr(new VarList("Geometry"));
+  world.push_back(geo_vars);  
+  robot_settings = new QSettings;
 
+  VarListPtr game_vars(new VarList("Game"));
+  geo_vars->addChild(game_vars);
+  ADD_ENUM(StringEnum, Division, "Division A", "Division")
+  ADD_TO_ENUM(Division, "Division A");
+  ADD_TO_ENUM(Division, "Division B");
+  END_ENUM(game_vars, Division);
+  ADD_VALUE(game_vars,Int, Robots_Count, 8, "Robots Count")
+  VarListPtr fields_vars(new VarList("Field"));
+  VarListPtr div_a_vars(new VarList("Division A"));
+  VarListPtr div_b_vars(new VarList("Division B"));
+  geo_vars->addChild(fields_vars);
+  fields_vars->addChild(div_a_vars);
+  fields_vars->addChild(div_b_vars);
 
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Line_Width,0.010,"Line Thickness")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Length,12.000,"Length")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Width,9.000,"Width")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Rad,0.500,"Radius")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Free_Kick,0.700,"Free Kick Distance From Defense Area")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Penalty_Width,2.40,"Penalty width")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Penalty_Depth,1.20,"Penalty depth")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Penalty_Point,1.20,"Penalty point")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Margin,0.3,"Margin")
+  ADD_VALUE(div_a_vars, Double, DivA_Field_Referee_Margin,0.4,"Referee margin")
+  ADD_VALUE(div_a_vars, Double, DivA_Wall_Thickness,0.050,"Wall thickness")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Thickness,0.020,"Goal thickness")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Depth,0.200,"Goal depth")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Width,1.200,"Goal width")
+  ADD_VALUE(div_a_vars, Double, DivA_Goal_Height,0.160,"Goal height")
+
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Line_Width,0.010,"Line Thickness")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Length,9.000,"Length")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Width,6.000,"Width")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Rad,0.500,"Radius")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Free_Kick,0.700,"Free Kick Distance From Defense Area")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Penalty_Width,2.00,"Penalty width")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Penalty_Depth,1.0,"Penalty depth")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Penalty_Point,1.00,"Penalty point")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Margin,0.30,"Margin")
+  ADD_VALUE(div_b_vars, Double, DivB_Field_Referee_Margin,0.4,"Referee margin")
+  ADD_VALUE(div_b_vars, Double, DivB_Wall_Thickness,0.050,"Wall thickness")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Thickness,0.020,"Goal thickness")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Depth,0.200,"Goal depth")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Width,1.000,"Goal width")
+  ADD_VALUE(div_b_vars, Double, DivB_Goal_Height,0.160,"Goal height")
+
+  ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
+  END_ENUM(geo_vars,YellowTeam)
+  ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
+  END_ENUM(geo_vars,BlueTeam)
+
+    VarListPtr ballg_vars(new VarList("Ball"));
+    geo_vars->addChild(ballg_vars);
+        ADD_VALUE(ballg_vars,Double,BallRadius,0.0215,"Radius")
+  VarListPtr phys_vars(new VarList("Physics"));
+  world.push_back(phys_vars);
+    VarListPtr worldp_vars(new VarList("World"));
+    phys_vars->addChild(worldp_vars);  
+        ADD_VALUE(worldp_vars,Double,DesiredFPS,65,"Desired FPS")
+        ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
+        ADD_VALUE(worldp_vars,Double,DeltaTime,0.016,"ODE time step")
+        ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
+  VarListPtr ballp_vars(new VarList("Ball"));
+    phys_vars->addChild(ballp_vars);
+        ADD_VALUE(ballp_vars,Double,BallMass,0.043,"Ball mass");
+        ADD_VALUE(ballp_vars,Double,BallFriction,0.05,"Ball-ground friction")
+        ADD_VALUE(ballp_vars,Double,BallSlip,1,"Ball-ground slip")
+        ADD_VALUE(ballp_vars,Double,BallBounce,0.5,"Ball-ground bounce factor")
+        ADD_VALUE(ballp_vars,Double,BallBounceVel,0.1,"Ball-ground bounce min velocity")
+        ADD_VALUE(ballp_vars,Double,BallLinearDamp,0.004,"Ball linear damping")
+        ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
   VarListPtr comm_vars(new VarList("Communication"));
   world.push_back(comm_vars);
-  ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
+    ADD_VALUE(comm_vars,String,VisionMulticastAddr,"224.5.23.2","Vision multicast address")  //SSL Vision: "224.5.23.2"
     ADD_VALUE(comm_vars,Int,VisionMulticastPort,10020,"Vision multicast port")
     ADD_VALUE(comm_vars,Int,CommandListenPort,20011,"Command listen port")
     ADD_VALUE(comm_vars,Int,BlueStatusSendPort,30011,"Blue Team status send port")
@@ -69,106 +142,46 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
         ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
-          
- 
-          // for(int i=0;i<world.size();i++)
-          // {
-          //   std::cout<<"DEBUG WORLD: "<<(world[i])->getName()<<std::endl;
-          //   std::vector<VarPtr>c=world[i]->getChildren();
-          //   for(int j=0;j<c.size();j++)
-          //     std::cout<<"\tDEBUG: "<<(c[i])->getName()<<std::endl;
-          // }
+    world=VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 
-          geo_vars = VarListPtr(new VarList("Geometry"));
-        world.push_back(geo_vars);  
-        robot_settings = new QSettings;
-        VarListPtr field_vars(new VarList("Field"));
-        geo_vars->addChild(field_vars);
-        ADD_VALUE(field_vars,Double,Field_Line_Width,0.010,"Line Thickness")
-          ADD_VALUE(field_vars,Double,Field_Length,9.000,"Length")
-          ADD_VALUE(field_vars,Double,Field_Width,6.000,"Width")
-          ADD_VALUE(field_vars,Double,Field_Rad,0.500,"Radius")
-          ADD_VALUE(field_vars,Double,Field_Free_Kick,0.700,"Free Kick Distanse From Defense Area")
-          ADD_VALUE(field_vars,Double,Field_Penalty_Width,2.40,"Penalty width")
-          ADD_VALUE(field_vars,Double,Field_Penalty_Depth,1.20,"Penalty depth")
-          ADD_VALUE(field_vars,Double,Field_Penalty_Point,1.20,"Penalty point")
-          ADD_VALUE(field_vars,Double,Field_Margin,0.250,"Margin")
-          ADD_VALUE(field_vars,Double,Field_Referee_Margin,0.455,"Referee margin")
-          ADD_VALUE(field_vars,Double,Wall_Thickness,0.050,"Wall thickness")
-          ADD_VALUE(field_vars,Double,Goal_Thickness,0.020,"Goal thickness")
-          ADD_VALUE(field_vars,Double,Goal_Depth,0.200,"Goal depth")
-          ADD_VALUE(field_vars,Double,Goal_Width,1.200,"Goal width")
-          ADD_VALUE(field_vars,Double,Goal_Height,0.160,"Goal height")
-          ADD_ENUM(StringEnum,YellowTeam,"Parsian","Yellow Team");
-        END_ENUM(geo_vars,YellowTeam)
-          ADD_ENUM(StringEnum,BlueTeam,"Parsian","Blue Team");
-        END_ENUM(geo_vars,BlueTeam)
 
-          VarListPtr ballg_vars(new VarList("Ball"));
-        geo_vars->addChild(ballg_vars);
-        ADD_VALUE(ballg_vars,Double,BallRadius,0.0215,"Radius")
-          VarListPtr phys_vars(new VarList("Physics"));
-        world.push_back(phys_vars);
-        VarListPtr worldp_vars(new VarList("World"));
-        phys_vars->addChild(worldp_vars);  
-        ADD_VALUE(worldp_vars,Double,DesiredFPS,65,"Desired FPS")
-          ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
-          ADD_VALUE(worldp_vars,Double,DeltaTime,0.016,"ODE time step")
-          ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
-          VarListPtr ballp_vars(new VarList("Ball"));
-        phys_vars->addChild(ballp_vars);
-        ADD_VALUE(ballp_vars,Double,BallMass,0.043,"Ball mass")
+    QDir dir;
+    std::string blueteam = v_BlueTeam->getString();
+    geo_vars->removeChild(v_BlueTeam);
 
-          // v_BallMass = std::tr1::shared_ptr<VarDouble>(new VarDouble("Ball mass",0.043)); 
-          // ballp_vars->addChild(v_BallMass);
-    
-      
-          ADD_VALUE(ballp_vars,Double,BallFriction,0.05,"Ball-ground friction")
-          ADD_VALUE(ballp_vars,Double,BallSlip,1,"Ball-ground slip")
-          ADD_VALUE(ballp_vars,Double,BallBounce,0.5,"Ball-ground bounce factor")
-          ADD_VALUE(ballp_vars,Double,BallBounceVel,0.1,"Ball-ground bounce min velocity")
-          ADD_VALUE(ballp_vars,Double,BallLinearDamp,0.004,"Ball linear damping")
-          ADD_VALUE(ballp_vars,Double,BallAngularDamp,0.004,"Ball angular damping")
+    std::string yellowteam = v_YellowTeam->getString();
+    geo_vars->removeChild(v_YellowTeam);
 
-          world=VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
-        
-        QDir dir;
-        std::string blueteam = v_BlueTeam->getString();
-        geo_vars->removeChild(v_BlueTeam);
+    ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
+    ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
 
-        std::string yellowteam = v_YellowTeam->getString();
-        geo_vars->removeChild(v_YellowTeam);
-
-        ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
-        ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
-
-        dir.setCurrent(qApp->applicationDirPath()+"/../config/");
-        dir.setNameFilters(QStringList() << "*.ini");
-        dir.setSorting(QDir::Size | QDir::Reversed);
-        QFileInfoList list = dir.entryInfoList();
-        for (int i = 0; i < list.size(); ++i) {
-          QFileInfo fileInfo = list.at(i);
-          QStringList s = fileInfo.fileName().split(".");
-          QString str;
-          if (s.count() > 0) str = s[0];
-          ADD_TO_ENUM(BlueTeam,str.toStdString())
-            ADD_TO_ENUM(YellowTeam,str.toStdString())
-            }
+    dir.setCurrent(qApp->applicationDirPath()+"/../config/");
+    dir.setNameFilters(QStringList() << "*.ini");
+    dir.setSorting(QDir::Size | QDir::Reversed);
+    QFileInfoList list = dir.entryInfoList();
+    for (int i = 0; i < list.size(); ++i) {
+        QFileInfo fileInfo = list.at(i);
+        QStringList s = fileInfo.fileName().split(".");
+        QString str;
+        if (s.count() > 0) str = s[0];
+        ADD_TO_ENUM(BlueTeam,str.toStdString())
+        ADD_TO_ENUM(YellowTeam,str.toStdString())
+    }
     dir.setCurrent(qApp->applicationDirPath()+"/../share/grsim/config/");
     dir.setNameFilters(QStringList() << "*.ini");
     dir.setSorting(QDir::Size | QDir::Reversed);
     list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i) {
-      QFileInfo fileInfo = list.at(i);
-      QStringList s = fileInfo.fileName().split(".");
-      QString str;
-      if (s.count() > 0) str = s[0];
-      ADD_TO_ENUM(BlueTeam,str.toStdString())
+        QFileInfo fileInfo = list.at(i);
+        QStringList s = fileInfo.fileName().split(".");
+        QString str;
+        if (s.count() > 0) str = s[0];
+        ADD_TO_ENUM(BlueTeam,str.toStdString())
         ADD_TO_ENUM(YellowTeam,str.toStdString())
-        }
+    }
 
     END_ENUM(geo_vars,BlueTeam)
-          END_ENUM(geo_vars,YellowTeam)
+    END_ENUM(geo_vars,YellowTeam)
 
   v_BlueTeam->setString(blueteam);
   v_YellowTeam->setString(yellowteam);
