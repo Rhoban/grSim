@@ -28,15 +28,33 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("grSim");
     QApplication a(argc, argv);
     MainWindow w;
-
-    if (std::find(argv, argend, std::string("--headless")) != argend
-        || std::find(argv, argend, std::string("-H")) != argend) {
-        // enable headless mode
+    bool headless=false;
+    
+    for(int i=0;i<argc;i++)
+    {
+      
+      if(std::string(argv[i]).compare("--headless")==0 || std::string(argv[i]).compare("-H")==0)
+      {
+        std::cout<<"Headless mode"<<std::endl;
         w.hide();
         w.setIsGlEnabled(false);
-    } else {
-        // Run normally
-        w.show();
+        w.hide();
+        headless=true;
+      }
+      
+      if(std::string(argv[i]).compare("-i")==0)
+      {
+        if(i+1<=argc)
+        {
+          w.changeInterface(std::string(argv[i+1]));
+          std::cout<<"changing to interface "<<std::string(argv[i+1])<<std::endl;
+
+        }
+      }
     }
+
+    if(!headless)
+      w.show();
+    
     return a.exec();
 }

@@ -72,17 +72,18 @@ public slots:
     void reconnectVisionSocket();
     void recvActions();
     void setIsGlEnabled(bool value);
-
-    int robotIndex(int robot,int team);
+  void changeInterface(const string & net_interface);
+  
+  int robotIndex(int robot,int team);
 private:
-    int getInterval();    
-    QTimer *timer;
+  int getInterval();    
+  QTimer *timer;
 #ifndef QT5
-    QWorkspace* workspace;
+  QWorkspace* workspace;
 #else
-    QMdiArea* workspace;
+  QMdiArea* workspace;
 #endif
-    GLWidget *glwidget;
+  GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
     RobotWidget *robotwidget;        
