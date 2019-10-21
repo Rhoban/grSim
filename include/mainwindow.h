@@ -19,15 +19,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#if QT_VERSION >= 0x050000
-#define QT5
-#endif
-
-#ifdef QT5
 #include <QMdiArea>
-#else
-#include <QWorkspace>
-#endif
 
 #include <QLabel>
 
@@ -76,14 +68,10 @@ public slots:
   
   int robotIndex(int robot,int team);
 private:
-  int getInterval();    
-  QTimer *timer;
-#ifndef QT5
-  QWorkspace* workspace;
-#else
-  QMdiArea* workspace;
-#endif
-  GLWidget *glwidget;
+    int getInterval();    
+    QTimer *timer;
+    QMdiArea* workspace;
+    GLWidget *glwidget;
     ConfigWidget *configwidget;
     ConfigDockWidget *dockconfig;
     RobotWidget *robotwidget;        

@@ -18,23 +18,11 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 
 #include "configwidget.h"
 
-#ifdef HAVE_MACOSX
-
 #define ADD_ENUM(type,name,Defaultvalue,namestring) \
     v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
 #define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
     v_##name = std::shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
     parent->addChild(v_##name);
-
-#else
-
-#define ADD_ENUM(type,name,Defaultvalue,namestring) \
-    v_##name = std::tr1::shared_ptr<Var##type>(new Var##type(namestring,Defaultvalue));
-#define ADD_VALUE(parent,type,name,defaultvalue,namestring) \
-    v_##name = std::tr1::shared_ptr<Var##type>(new Var##type(namestring,defaultvalue)); \
-    parent->addChild(v_##name);
-
-#endif
 
 #define END_ENUM(parents, name) \
     parents->addChild(v_##name);
@@ -112,6 +100,7 @@ ConfigWidget::ConfigWidget()
         ADD_VALUE(worldp_vars,Bool,SyncWithGL,false,"Synchronize ODE with OpenGL")
         ADD_VALUE(worldp_vars,Double,DeltaTime,0.016,"ODE time step")
         ADD_VALUE(worldp_vars,Double,Gravity,9.8,"Gravity")
+        ADD_VALUE(worldp_vars,Bool,ResetTurnOver,true,"Auto reset turn-over")
   VarListPtr ballp_vars(new VarList("Ball"));
     phys_vars->addChild(ballp_vars);
         ADD_VALUE(ballp_vars,Double,BallMass,0.043,"Ball mass");
