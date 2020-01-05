@@ -301,8 +301,6 @@ SSLWorld::SSLWorld(QGLWidget* parent,ConfigWidget* _cfg,RobotsFomation *form1,Ro
         }
     }
     sendGeomCount = 0;
-    timer = new QTime();
-    timer->start();
     in_buffer = new char [65536];
 
     // initialize robot state
@@ -712,17 +710,21 @@ bool SSLWorld::visibleInCam(int id, double x, double y)
 #define CONVUNIT(x) ((int)(1000*(x)))
 SSL_WrapperPacket* SSLWorld::generatePacket(int cam_id)
 {
+    using namespace std::chrono;
+
     SSL_WrapperPacket* packet = new SSL_WrapperPacket;
     dReal x,y,z,dir,k;
     ball->getBodyPosition(x,y,z);    
     packet->mutable_detection()->set_camera_id(cam_id);
     packet->mutable_detection()->set_frame_number(framenum);    
-    dReal t_elapsed = timer->elapsed()/1000.0;
-    packet->mutable_detection()->set_t_capture(t_elapsed);
-    packet->mutable_detection()->set_t_sent(t_elapsed);
     dReal dev_x = cfg->noiseDeviation_x();
     dReal dev_y = cfg->noiseDeviation_y();
     dReal dev_a = cfg->noiseDeviation_angle();
+
+    dReal current_time = time_point_cast<microseconds>(steady_clock::now()).time_since_epoch().count();
+    packet->mutable_detection()->set_t_capture(current_time*1e-6);
+    packet->mutable_detection()->set_t_sent(current_time*1e-6);
+
     if (sendGeomCount++ % cfg->sendGeometryEvery() == 0)
     {
         SSL_GeometryData* geom = packet->mutable_geometry();
@@ -898,7 +900,9 @@ SendingPacket::SendingPacket(SSL_WrapperPacket* _packet,int _t)
 
 void SSLWorld::sendVisionBuffer()
 {
-    int t = timer->elapsed();
+    using namespace std::chrono;
+    int t = time_point_cast<microseconds>(steady_clock::now()).time_since_epoch().count();
+
     sendQueue.push_back(new SendingPacket(generatePacket(0),t));    
     sendQueue.push_back(new SendingPacket(generatePacket(1),t+1));
     sendQueue.push_back(new SendingPacket(generatePacket(2),t+2));
