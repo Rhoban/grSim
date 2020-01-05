@@ -39,8 +39,7 @@ friend class MultiStackRoboCupSSL;
 public:
     RoboCupSSLServer(QObject *parent=0,
                      const quint16 &port=10002,
-                     const string &net_address="224.5.23.2",
-                     const string &net_interface="");
+                     const string &net_address="224.5.23.2");
 
     ~RoboCupSSLServer();
 
@@ -49,14 +48,12 @@ public:
     bool send(const SSL_GeometryData & geometry);
     void change_port(const quint16 &port);
     void change_address(const string & net_address);
-    void change_interface(const string & net_interface);
 
 protected:
     QUdpSocket * _socket;
     QMutex mutex;
     quint16 _port;
     QHostAddress * _net_address;
-    QNetworkInterface * _net_interface;
 };
 
 #endif

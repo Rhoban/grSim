@@ -64,7 +64,6 @@ public slots:
     void reconnectVisionSocket();
     void recvActions();
     void setIsGlEnabled(bool value);
-  void changeInterface(const string & net_interface);
   
   int robotIndex(int robot,int team);
 private:

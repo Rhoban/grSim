@@ -44,16 +44,6 @@ int main(int argc, char *argv[])
         w.hide();
         headless=true;
       }
-      
-      if(std::string(argv[i]).compare("-i")==0)
-      {
-        if(i+1<=argc)
-        {
-          w.changeInterface(std::string(argv[i+1]));
-          std::cout<<"changing to interface "<<std::string(argv[i+1])<<std::endl;
-
-        }
-      }
     }
 
     if(!headless)

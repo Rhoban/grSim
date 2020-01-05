@@ -535,11 +535,6 @@ void MainWindow::reconnectVisionSocket()
     logStatus(QString("Vision server connected on: %1").arg(configwidget->VisionMulticastPort()),QColor("green"));
 }
 
-void MainWindow::changeInterface(const string & net_interface)
-{
-  visionServer->change_interface(net_interface);
-}
-
 void MainWindow::recvActions()
 {
     glwidget->ssl->recvActions();

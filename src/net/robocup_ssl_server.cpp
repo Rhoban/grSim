@@ -26,13 +26,22 @@
 
 using namespace std;
 
-RoboCupSSLServer::RoboCupSSLServer(QObject *parent, const quint16 &port, const string &net_address, const string &net_interface) :
+RoboCupSSLServer::RoboCupSSLServer(QObject *parent, const quint16 &port, const string &net_address) :
     _socket(new QUdpSocket(parent)),
     _port(port),
-    _net_address(new QHostAddress(QString(net_address.c_str()))),
-    _net_interface(new QNetworkInterface(QNetworkInterface::interfaceFromName(QString(net_interface.c_str()))))
+    _net_address(new QHostAddress(QString(net_address.c_str())))
 {
+    _socket->bind(*_net_address, _port);
     _socket->setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
+
+    QString ifname = static_cast<QString>(getenv("SSL_MULTICAST_SIMU_IFNAME"));
+    if(ifname.isEmpty()) {
+      ifname = "lo";
+    }
+
+    std::cout << "MULTICAST INTERFACE ON: " << ifname.toStdString() << std::endl;
+    auto interface = QNetworkInterface(QNetworkInterface::interfaceFromName(ifname));
+    _socket->setMulticastInterface(interface);
 }
 
 RoboCupSSLServer::~RoboCupSSLServer()
@@ -41,7 +50,6 @@ RoboCupSSLServer::~RoboCupSSLServer()
     mutex.unlock();
     delete _socket;
     delete _net_address;
-    delete _net_interface;
 }
 
 void RoboCupSSLServer::change_port(const quint16 & port)
@@ -53,12 +61,6 @@ void RoboCupSSLServer::change_address(const string & net_address)
 {
     delete _net_address;
     _net_address = new QHostAddress(QString(net_address.c_str()));
-}
-
-void RoboCupSSLServer::change_interface(const string & net_interface)
-{
-    delete _net_interface;
-    _net_interface = new QNetworkInterface(QNetworkInterface::interfaceFromName(QString(net_interface.c_str())));
 }
 
 bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet)
